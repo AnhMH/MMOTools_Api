@@ -329,7 +329,7 @@ return array(
     'image_ext' =>  array('jpeg', 'jpg', 'gif', 'png'),
     
     'api_check_security' => true,
-    'api_secret_key' => 'chotreolethuy',
+    'api_secret_key' => 'hoanganhonline.com',
     'api_request_minute' => 10,// Minute
     'api_token_expire' => time() + 30 * 24 * 60 * 60, // 30 days
     'register_token_expire' => time() + 60 * 60, // 1 hour
@@ -338,19 +338,6 @@ return array(
     'unauthorize_url' => array(
         'admins/login',
         'admins/register',
-        'settings/getfrontdata',
-        'settings/gethomedata',
-        'products/getdetailforfront',
-        'cates/getdetailforfront',
-        'coupons/getdetailforfront',
-        'products/list',
-        'contact/addupdate',
-        'customers/login',
-        'customers/addupdate',
-        'products/detail',
-        'orders/addupdate',
-        'admins/getdetailforfront',
-        'coupons/list',
     ),
     'admin_authorize_url' => array(),
     'unauthorize_basic_token_url' => array(

@@ -15,24 +15,14 @@ class Model_Admin extends Model_Abstract {
     /** @var array $_properties field of table */
     protected static $_properties = array(
         'id',
-        'type',
-        'account',
         'password',
         'name',
         'email',
-        'address',
-        'tel',
         'avatar',
-        'website',
-        'facebook',
-        'description',
         'created',
         'updated',
         'disable',
-        'url',
-        'is_confirm',
-        'point',
-        'is_trust'
+        'admin_type'
     );
 
     protected static $_observers = array(
