@@ -41,4 +41,11 @@ class Controller_FBAccounts extends \Controller_App {
     public function action_delete() {
         return \Bus\FBAccounts_Delete::getInstance()->execute();
     }
+    
+    /**
+     * FBAccount get token url
+     */
+    public function action_gettokenurl() {
+        return \Bus\FBAccounts_GetTokenUrl::getInstance()->execute();
+    }
 }

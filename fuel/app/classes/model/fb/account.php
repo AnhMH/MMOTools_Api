@@ -225,4 +225,26 @@ class Model_Fb_Account extends Model_Abstract {
         
         return $data;
     }
+    
+    /**
+     * Get token url
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function get_token_url($param)
+    {
+        // Init
+        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : '';
+        $url = '';
+        
+        $username = !empty($param['username']) ? $param['username'] : '';
+        $password = !empty($param['password']) ? $param['password'] : '';
+        $type = !empty($param['app']) ? $param['app'] : 'android';
+        
+        $url = Lib\AutoFB::getTokenUrl($username, $password, $type);
+        
+        return $url;
+    }
 }

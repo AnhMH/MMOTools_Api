@@ -264,7 +264,7 @@ class AutoFB {
             'format' => 'JSON',
             //'generate_machine_id' => '1',
             //'generate_session_cookies' => '1',
-            'locale' => 'vi_vn',
+//            'locale' => 'vi_vn',
             'method' => 'auth.login',
             'password' => $password,
             'return_ssl_resources' => '0',
@@ -288,6 +288,40 @@ class AutoFB {
         curl_close($ch);
         $infotoken = json_decode($page, true);
         return $infotoken;
+    }
+    
+    /**
+     * Get url token full quyen
+     *
+     * @author AnhMH
+     * @return array|bool Response data or false if error
+     */
+    public static function getTokenUrl($username, $password, $type = 'android') {
+        $linklist = 'https://api.facebook.com/restserver.php';
+        $apiKey = ($type == 'android') ? '882a8490361da98702bf97a021ddc14d' : '3e7c78e35a76a9299309885393b02d97';
+        $sigKey = ($type == 'android') ? '62f8ce9f74b12f84c123cc23437a4a32' : 'c1e620fa708a1d5696fb991c1bde5662';
+        $userAgent = ($type == 'android') ? "Mozilla/5.0 (Linux; Android 4.4.2; SMART 3.5'' Touch+ Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36" : "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1";
+        
+        $data = array(
+            'api_key' => $apiKey,
+            'email' => $username,
+            'format' => 'JSON',
+            //'generate_machine_id' => '1',
+            //'generate_session_cookies' => '1',
+//            'locale' => 'vi_vn',
+            'method' => 'auth.login',
+            'password' => $password,
+            'return_ssl_resources' => '0',
+            'v' => '1.0'
+        );
+        $sig = '';
+        foreach ($data as $key => $value) {
+            $sig .= "$key=$value";
+        }
+        $sig .= $sigKey;
+        $data['sig'] = md5($sig);
+        
+        return $linklist.'?'.http_build_query($data);
     }
 
 }
