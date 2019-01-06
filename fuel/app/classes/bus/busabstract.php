@@ -342,7 +342,7 @@ abstract class BusAbstract {
             $data['page'] = 1;
         }
         
-//        \LogLib::info('Param:', __METHOD__, $data);
+        \LogLib::info('Param:', __METHOD__, $data);
         $operateDB = $this->operateDB($data);
         if ($operateDB === false) {
             if ($this->_exception != null) {
