@@ -247,4 +247,96 @@ class Model_Fb_Account extends Model_Abstract {
         
         return $url;
     }
+    
+    /**
+     * Add token
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function add_token($param)
+    {
+        // Init
+        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : 0;
+        $token = !empty($param['token']) ? $param['token'] : '';
+        $time = time();
+        $self = array();
+        
+        // Check if exist User
+        $self = self::find('first', array(
+            'where' => array(
+                'token' => $token
+            )
+        ));
+        if (!empty($self)) {
+            self::errorDuplicate('token');
+            return false;
+        }
+        $self = new self;
+        
+        $profile = \Lib\AutoFB::getProfile($token);
+        if (!empty($profile['error'])) {
+            self::errorOther(self::ERROR_CODE_OTHER_1, 'Token lỗi');
+            return false;
+        }
+        $param['fb_id'] = !empty($profile['id']) ? $profile['id'] : '';
+        $param['name'] = !empty($profile['name']) ? $profile['name'] : '';
+        $param['email'] = !empty($profile['email']) ? $profile['email'] : '';
+        
+        // Set data
+        $self->set('admin_id', $adminId);
+        $self->set('created', $time);
+        $self->set('updated', $time);
+        if (!empty($param['email'])) {
+            $self->set('email', $param['email']);
+        }
+        if (!empty($param['password'])) {
+            $self->set('password', $param['password']);
+        }
+        if (!empty($param['token'])) {
+            $self->set('token', $param['token']);
+        }
+        if (!empty($param['name'])) {
+            $self->set('name', $param['name']);
+        }
+        if (!empty($param['avatar'])) {
+            $self->set('avatar', $param['avatar']);
+        }
+        if (!empty($param['fb_id'])) {
+            $self->set('fb_id', $param['fb_id']);
+        }
+        if (isset($param['disable'])) {
+            $self->set('disable', $param['disable']);
+        }
+        
+        // Save data
+        if ($self->save()) {
+            if (empty($self->id)) {
+                $self->id = self::cached_object($self)->_original['id'];
+            }
+            return $self->id;
+        }
+        return false;
+    }
+    
+    /**
+     * Enable/Disable
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function disable($param)
+    {
+        $ids = !empty($param['id']) ? $param['id'] : '';
+        $table = self::$_table_name;
+        $cond = '';
+        if (!empty($param['id'])) {
+            $cond .= "id IN ({$param['id']})";
+        }
+        
+        $sql = "DELETE FROM {$table} WHERE {$cond}";
+        return DB::query($sql)->execute();
+    }
 }

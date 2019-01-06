@@ -15,7 +15,10 @@ class Controller_Test extends \Controller_App {
      * @return  Response
      */
     public function action_index() {
-        $data = Model_Fb_Auto_Like_Feed::auto_like();
+        $param = array(
+            'token' => 'EAAAAUaZA8jlABAL5R3jnKSZA887KtoX2k0KZCx25nNCggZCZAw2B92dVQ1nnC4kPfzCwjPT4heHQvcyTQZBkd9E8cr3SwztAxIjiB8K41hu59s8z7dt0eMLB0mfFCbWHBbs400wfwEDE8IBZAs66hHUT8YezpKK2q3h1dyZBnhBgntD5vWbVrJvG'
+        );
+        $data = Model_Fb_Account::add_token($param);
         echo '<pre>';
         print_r($data);
         die();
@@ -93,7 +96,7 @@ class Controller_Test extends \Controller_App {
                 'password' => $pass,
                 'token' => $token,
                 'name' => $profile['name'],
-                'fb_user_id' => $profile['id']
+                'fb_id' => $profile['id']
             );
             echo Model_Fb_Account::add_update($parram);
         } elseif (!empty($tokeninfo['error_data'])) {

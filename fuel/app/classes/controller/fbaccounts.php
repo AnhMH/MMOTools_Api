@@ -48,4 +48,11 @@ class Controller_FBAccounts extends \Controller_App {
     public function action_gettokenurl() {
         return \Bus\FBAccounts_GetTokenUrl::getInstance()->execute();
     }
+    
+    /**
+     * FBAccount add from token
+     */
+    public function action_addtoken() {
+        return \Bus\FBAccounts_AddToken::getInstance()->execute();
+    }
 }
