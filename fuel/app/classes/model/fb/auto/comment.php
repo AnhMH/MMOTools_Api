@@ -247,4 +247,64 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         
         return $data;
     }
+    
+    /**
+     * Auto comment posts
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function auto_comment()
+    {
+        $addUpdateData = array();
+        $time = time();
+        // Query
+        $query = DB::select(
+                self::$_table_name.'.*',
+                'fb_accounts.token'
+            )
+            ->from(self::$_table_name)
+            ->join('fb_accounts')
+            ->on('fb_accounts.id', '=', self::$_table_name.'.fb_account_id')
+            ->where_open()
+                ->where(self::$_table_name.'.is_comment', 0)
+                ->or_where(self::$_table_name.'.is_comment', 'is', null)
+                ->or_where_open()
+                    ->where(self::$_table_name.'.is_comment', 1)
+                    ->where(self::$_table_name.'.is_repeat', 1)
+                    ->where(DB::expr(self::$_table_name.".created + ".self::$_table_name.".time_repeat"), '<=', $time)
+                ->or_where_close()
+            ->where_close()
+        ;
+        
+        // Get data
+        $data = $query->execute()->as_array();
+        
+        if (!empty($data)) {
+            foreach ($data as $val) {
+                $postId = $val['fb_id'];
+                $token = $val['token'];
+                $content = explode("\n", $val['content']);
+                $message = $content[array_rand($content)];
+                $auto = Lib\AutoFB::autoComment($postId, $token, $message);
+                if (!empty($auto['success'])) {
+                    $tmp = array(
+                        'is_comment' => 1,
+                        'id' => $val['id'],
+                        'created' => $time
+                    );
+                    $addUpdateData[] = $tmp;
+                }
+            }
+            if (!empty($addUpdateData)) {
+                self::batchInsert(self::$_table_name, $addUpdateData, array(
+                    'id' => DB::expr('VALUES(id)'),
+                    'is_comment' => DB::expr('VALUES(is_comment)'),
+                    'created' => DB::expr('VALUES(created)'),
+                ));
+            }
+        }
+        return $data;
+    }
 }

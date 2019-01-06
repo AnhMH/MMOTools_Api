@@ -19,7 +19,7 @@ class Controller_Test extends \Controller_App {
             'token' => 'EAAAAUaZA8jlABAL5R3jnKSZA887KtoX2k0KZCx25nNCggZCZAw2B92dVQ1nnC4kPfzCwjPT4heHQvcyTQZBkd9E8cr3SwztAxIjiB8K41hu59s8z7dt0eMLB0mfFCbWHBbs400wfwEDE8IBZAs66hHUT8YezpKK2q3h1dyZBnhBgntD5vWbVrJvG',
             'user_id' => '100024687646484'
         );
-        $data = \Lib\AutoFB::getListPages($param['token'], 5000);
+        $data = Model_Fb_Auto_Comment::auto_comment();
         echo '<pre>';
         print_r($data);
         die();
@@ -107,4 +107,14 @@ class Controller_Test extends \Controller_App {
         
     }
 
+    /**
+     * Auto comment
+     *
+     * @access  public
+     * @return  Response
+     */
+    public function action_fbautocomment() {
+        ini_set('memory_limit', -1);
+        Model_Fb_Auto_Comment::auto_comment();
+    }
 }

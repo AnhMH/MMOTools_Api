@@ -159,12 +159,16 @@ class AutoFB {
      * @author AnhMH
      * @return array|bool Response data or false if error
      */
-    public static function autoComment($postId, $token, $message, $au) {
+    public static function autoComment($postId, $token, $message, $au = '') {
         $url = self::$_url_auto_comment;
         $url = str_replace('{POST_ID}', $postId, $url);
         $url = str_replace('{ACCESS_TOKEN}', $token, $url);
         $url = str_replace('{MESSAGE}', urlencode($message), $url);
-        $url = str_replace('{AU}', urlencode($au), $url);
+        if (!empty($au)) {
+            $url = str_replace('{AU}', urlencode($au), $url);
+        } else {
+            $url = str_replace('&attachment_url={AU}', '', $url);
+        }
 
         $data = json_decode(self::call($url), true);
         return $data;
