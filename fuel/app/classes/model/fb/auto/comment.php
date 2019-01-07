@@ -340,4 +340,53 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         }
         return $data;
     }
+    
+    /**
+     * Add update info
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function add_update_multi($param)
+    {
+        // Init
+        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : 0;
+        $time = time();
+        $addUpdateData = array();
+        $fbAccounts = !empty($param['fb_account_id']) ? explode(',', $param['fb_account_id']) : '';
+        $type = !empty($param['type']) ? $param['type'] : '';
+        $fbId = !empty($param['fb_postid']) ? $param['fb_postid'] : '';
+        $content = !empty($param['content']) ? $param['content'] : '';
+        $isRepeat = !empty($param['is_repeat']) ? $param['is_repeat'] : 0;
+        $timeRepeat = !empty($param['time_repeat']) ? $param['time_repeat'] : 0;
+        
+        if (!empty($fbAccounts)) {
+            foreach ($fbAccounts as $v) {
+                $addUpdateData[] = array(
+                    'admin_id' => $adminId,
+                    'fb_account_id' => $v,
+                    'type' => $type,
+                    'fb_id' => $fbId,
+                    'content' => $content,
+                    'is_repeat' => $isRepeat,
+                    'time_repeat' => $timeRepeat,
+                    'created' => $time,
+                    'updated' => $time
+                );
+            }
+            if (!empty($addUpdateData)) {
+                self::batchInsert(self::$_table_name, $addUpdateData, array(
+                    'fb_account_id' => DB::expr('VALUES(fb_account_id)'),
+                    'fb_id' => DB::expr('VALUES(fb_id)'),
+                    'type' => DB::expr('VALUES(type)'),
+                    'content' => DB::expr('VALUES(content)'),
+                    'is_repeat' => DB::expr('VALUES(is_repeat)'),
+                    'time_repeat' => DB::expr('VALUES(time_repeat)'),
+                    'updated' => DB::expr('VALUES(updated)'),
+                ));
+            }
+        }
+        return true;
+    }
 }

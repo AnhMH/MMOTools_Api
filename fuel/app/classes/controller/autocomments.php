@@ -22,6 +22,13 @@ class Controller_AutoComments extends \Controller_App {
     }
     
     /**
+     * AutoComment addupdate multi
+     */
+    public function action_addupdatemulti() {
+        return \Bus\AutoComments_AddUpdateMulti::getInstance()->execute();
+    }
+    
+    /**
      * AutoComment list
      */
     public function action_list() {
