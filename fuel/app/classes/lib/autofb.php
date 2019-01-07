@@ -24,6 +24,7 @@ class AutoFB {
     public static $_url_get_profile = 'https://graph.facebook.com/v2.3/me?access_token={ACCESS_TOKEN}&format=json&method=get';
     public static $_url_get_list_group = 'https://graph.fb.me/{USER_ID}/groups?limit={LIMIT}&access_token={ACCESS_TOKEN}';
     public static $_url_get_list_page = 'https://graph.facebook.com/me/accounts?access_token={ACCESS_TOKEN}';
+    public static $_url_get_post_by_page_id = 'https://graph.facebook.com/{PAGE_ID}/posts?fields={FIELDS}&limit={LIMIT}&access_token={ACCESS_TOKEN}';
 
     /**
      * Get post by user id
@@ -34,6 +35,26 @@ class AutoFB {
     public static function getPostByUserId($userId, $token, $limit = '10', $fields = 'id,message,picture,name') {
         $url = self::$_url_get_post_by_user_id;
         $url = str_replace('{USER_ID}', $userId, $url);
+        $url = str_replace('{ACCESS_TOKEN}', $token, $url);
+        $url = str_replace('{LIMIT}', $limit, $url);
+        $url = str_replace('{FIELDS}', $fields, $url);
+
+        $data = json_decode(self::call($url), true);
+        if (!empty($data['data'])) {
+            return $data['data'];
+        }
+        return false;
+    }
+    
+    /**
+     * Get post by user id
+     *
+     * @author AnhMH
+     * @return array|bool Response data or false if error
+     */
+    public static function getPostByPageId($pageId, $token, $limit = '10', $fields = 'id,message,picture,name') {
+        $url = self::$_url_get_post_by_user_id;
+        $url = str_replace('{PAGE_ID}', $pageId, $url);
         $url = str_replace('{ACCESS_TOKEN}', $token, $url);
         $url = str_replace('{LIMIT}', $limit, $url);
         $url = str_replace('{FIELDS}', $fields, $url);

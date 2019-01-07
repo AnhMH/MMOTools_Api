@@ -22,7 +22,10 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         'is_comment',
         'time_repeat',
         'created',
-        'admin_id'
+        'admin_id',
+        'total_comment',
+        'type',
+        'updated'
     );
 
     protected static $_observers = array(
@@ -63,13 +66,23 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
                 return false;
             }
         } else {
+            $check = self::find('first', array(
+                'where' => array(
+                    'fb_account_id' => $param['fb_account_id'],
+                    'fb_id' => $param['fb_postid']
+                )
+            ));
+            if (!empty($check)) {
+                self::errorDuplicate('fb_id');
+                return false;
+            }
             $self = new self;
             $new = true;
         }
         
         // Set data
         $self->set('admin_id', $adminId);
-        $self->set('created', $time);
+        $self->set('updated', $time);
         if (!empty($param['fb_postid'])) {
             $self->set('fb_id', $param['fb_postid']);
         }
@@ -84,6 +97,12 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         }
         if (!empty($param['content'])) {
             $self->set('content', $param['content']);
+        }
+        if (!empty($param['type'])) {
+            $self->set('type', $param['type']);
+        }
+        if ($new) {
+            $self->set('created', $time);
         }
         
         // Save data
@@ -273,7 +292,7 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
                 ->or_where_open()
                     ->where(self::$_table_name.'.is_comment', 1)
                     ->where(self::$_table_name.'.is_repeat', 1)
-                    ->where(DB::expr(self::$_table_name.".created + ".self::$_table_name.".time_repeat"), '<=', $time)
+                    ->where(DB::expr(self::$_table_name.".updated + ".self::$_table_name.".time_repeat"), '<=', $time)
                 ->or_where_close()
             ->where_close()
         ;
@@ -283,16 +302,29 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         
         if (!empty($data)) {
             foreach ($data as $val) {
-                $postId = $val['fb_id'];
                 $token = $val['token'];
                 $content = explode("\n", $val['content']);
                 $message = $content[array_rand($content)];
+                $totalComment = !empty($val['total_comment']) ? $val['total_comment'] : 0;
+                $postId = $val['fb_id'];
+                
+                if ($val['type'] == 2) { // page
+                    $postData = Lib\AutoFB::getPostByUserId($postId, $token, 1);
+                    $postId = !empty($postData[0]['id']) ? $postData[0]['id'] : '';
+                } elseif ($val['type'] == 3) { // profile
+                    $postData = Lib\AutoFB::getPostByUserId($postId, $token, 1);
+                    $postId = !empty($postData[0]['id']) ? $postData[0]['id'] : '';
+                }
+                if (empty($postId)) {
+                    continue;
+                }
                 $auto = Lib\AutoFB::autoComment($postId, $token, $message);
-                if (!empty($auto['success'])) {
+                if (!empty($auto['success']) || !empty($auto['id'])) {
                     $tmp = array(
                         'is_comment' => 1,
                         'id' => $val['id'],
-                        'created' => $time
+                        'updated' => $time,
+                        'total_comment' => $totalComment + 1
                     );
                     $addUpdateData[] = $tmp;
                 }
@@ -301,7 +333,8 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
                 self::batchInsert(self::$_table_name, $addUpdateData, array(
                     'id' => DB::expr('VALUES(id)'),
                     'is_comment' => DB::expr('VALUES(is_comment)'),
-                    'created' => DB::expr('VALUES(created)'),
+                    'updated' => DB::expr('VALUES(updated)'),
+                    'total_comment' => DB::expr('VALUES(total_comment)')
                 ));
             }
         }
