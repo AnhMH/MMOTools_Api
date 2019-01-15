@@ -1,8 +1,8 @@
 <?php 
 return array(	
-	'upload_dir' => '/home/hoangan1/img.chotreo.com/',
-	'img_dir' => '/home/hoangan1/img.chotreo.com/',
-	'path' => '/home/hoangan1/img.chotreo.com/' . date('Y' . DS . 'm' . DS . 'd') . DS,
+	'upload_dir' => '/home/hoangan1/img.hoanganhonline.com/',
+	'img_dir' => '/home/hoangan1/img.hoanganhonline.com/',
+	'path' => '/home/hoangan1/img.hoanganhonline.com/' . date('Y' . DS . 'm' . DS . 'd') . DS,
 	'auto_process' => false,
 	'normalize' => true,
 	'change_case' => 'lower',

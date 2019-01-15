@@ -24,7 +24,9 @@ class AutoFB {
     public static $_url_get_profile = 'https://graph.facebook.com/v2.3/me?access_token={ACCESS_TOKEN}&format=json&method=get';
     public static $_url_get_list_group = 'https://graph.fb.me/{USER_ID}/groups?limit={LIMIT}&access_token={ACCESS_TOKEN}';
     public static $_url_get_list_page = 'https://graph.facebook.com/me/accounts?access_token={ACCESS_TOKEN}';
-    public static $_url_get_post_by_page_id = 'https://graph.facebook.com/{PAGE_ID}/posts?fields={FIELDS}&limit={LIMIT}&access_token={ACCESS_TOKEN}';
+    public static $_url_get_post_by_page_id = 'https://graph.facebook.com/{PAGE_ID}/posts?limit={LIMIT}&access_token={ACCESS_TOKEN}';
+    public static $_url_get_page_videos = 'https://graph.facebook.com/v2.3/{PAGE_ID}/video_lists?limit={LIMIT}&access_token={ACCESS_TOKEN}';
+    public static $_url_auto_post_page_video = 'https://graph-video.facebook.com/v3.2/{PAGE_ID}/videos?source={SOURCE}&description={TITLE}&method=POST&access_token={ACCESS_TOKEN}';
 
     /**
      * Get post by user id
@@ -52,14 +54,35 @@ class AutoFB {
      * @author AnhMH
      * @return array|bool Response data or false if error
      */
-    public static function getPostByPageId($pageId, $token, $limit = '10', $fields = 'id,message,picture,name') {
-        $url = self::$_url_get_post_by_user_id;
+    public static function getPostByPageId($pageId, $token, $limit = '10', $fields = 'all') {
+        $url = self::$_url_get_post_by_page_id;
         $url = str_replace('{PAGE_ID}', $pageId, $url);
         $url = str_replace('{ACCESS_TOKEN}', $token, $url);
         $url = str_replace('{LIMIT}', $limit, $url);
-        $url = str_replace('{FIELDS}', $fields, $url);
+//        $url = str_replace('{FIELDS}', $fields, $url);
 
         $data = json_decode(self::call($url), true);
+        
+        if (!empty($data['data'])) {
+            return $data['data'];
+        }
+        return false;
+    }
+    
+    /**
+     * Get post by user id
+     *
+     * @author AnhMH
+     * @return array|bool Response data or false if error
+     */
+    public static function getPageVideos($pageId, $token, $limit = '10') {
+        $url = self::$_url_get_page_videos;
+        $url = str_replace('{PAGE_ID}', $pageId, $url);
+        $url = str_replace('{ACCESS_TOKEN}', $token, $url);
+        $url = str_replace('{LIMIT}', $limit, $url);
+
+        $data = json_decode(self::call($url), true);
+        return $data;
         if (!empty($data['data'])) {
             return $data['data'];
         }
@@ -225,6 +248,26 @@ class AutoFB {
         $data = json_decode(self::call($url), true);
         return $data;
     }
+    
+    /**
+     * Auto post page video
+     *
+     * @author AnhMH
+     * @return array|bool Response data or false if error
+     */
+    public static function autoPostPageVideo($pageId, $source, $title, $token) {
+        $a = array(
+            'source' => $source
+        );
+        $a = http_build_query($a);
+        $url = self::$_url_auto_post_page_video;
+        $url = str_replace('{PAGE_ID}', $pageId, $url);
+        $url = str_replace('{TITLE}', $title, $url);
+        $url = str_replace('source={SOURCE}', $a, $url);
+        $url = str_replace('{ACCESS_TOKEN}', $token, $url);
+        $data = json_decode(self::call($url), true);
+        return $data;
+    }
 
     /**
      * Call api request 
@@ -247,8 +290,9 @@ class AutoFB {
         curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        return curl_exec($ch);
+        $data = curl_exec($ch);
         curl_close($ch);
+        return $data;
     }
 
     /**
