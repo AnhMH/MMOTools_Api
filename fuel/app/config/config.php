@@ -338,6 +338,7 @@ return array(
     'unauthorize_url' => array(
         'admins/login',
         'admins/register',
+        'fbaccounts/getuidfromurl',
     ),
     'admin_authorize_url' => array(),
     'unauthorize_basic_token_url' => array(

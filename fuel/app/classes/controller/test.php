@@ -15,6 +15,13 @@ class Controller_Test extends \Controller_App {
      * @return  Response
      */
     public function action_index() {
+        $url = 'https://www.facebook.com/mai.hoanganh.16#_';
+        $url = 'https://www.facebook.com/TIN-NHANH-365-291823958346497/?modal=admin_todo_tour';
+        $url = 'https://www.facebook.com/groups/HocVienYT/';
+        $a = Lib\AutoFB::getUIDfromUrl($url);
+        echo '<pre>';
+        print_r($a);
+        die();
         // Youtube video url
         $youtubeURL = 'https://www.youtube.com/watch?v=LFFibPk6f2Q';
         $youtubeURL = 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4';

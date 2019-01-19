@@ -84,8 +84,8 @@ class Model_Link extends Model_Abstract {
         return array(
             'links' => $data,
             'config' => array(
-                'min_time' => 30,
-                'max_time' => 60
+                'min_time' => 300,
+                'max_time' => 600
             )
         );
     }
@@ -105,6 +105,10 @@ class Model_Link extends Model_Abstract {
             )
             ->from(self::$_table_name)
         ;
+        
+        if (isset($param['disable']) && $param['disable'] != '') {
+            $query->where(self::$_table_name.'.disable', $param['disable']);
+        }
         
         // Pagination
         if (!empty($param['page']) && $param['limit']) {

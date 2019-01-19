@@ -55,4 +55,11 @@ class Controller_FBAccounts extends \Controller_App {
     public function action_addtoken() {
         return \Bus\FBAccounts_AddToken::getInstance()->execute();
     }
+    
+    /**
+     * FBAccount get uid from url
+     */
+    public function action_getuidfromurl() {
+        return \Bus\FBAccounts_GetUIDFromUrl::getInstance()->execute();
+    }
 }

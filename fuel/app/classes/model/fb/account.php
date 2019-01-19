@@ -339,4 +339,24 @@ class Model_Fb_Account extends Model_Abstract {
         $sql = "DELETE FROM {$table} WHERE {$cond}";
         return DB::query($sql)->execute();
     }
+    
+    /**
+     * Get uid from url
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function get_uid_from_url($param)
+    {
+        $url = !empty($param['url']) ? $param['url'] : '';
+        $uId = Lib\AutoFB::getUIDfromUrl($url);
+        
+        if (empty($uId)) {
+            self::errorNotExist('uid');
+            return false;
+        }
+        
+        return $uId;
+    }
 }

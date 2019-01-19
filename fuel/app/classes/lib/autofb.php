@@ -47,7 +47,7 @@ class AutoFB {
         }
         return false;
     }
-    
+
     /**
      * Get post by user id
      *
@@ -62,13 +62,13 @@ class AutoFB {
 //        $url = str_replace('{FIELDS}', $fields, $url);
 
         $data = json_decode(self::call($url), true);
-        
+
         if (!empty($data['data'])) {
             return $data['data'];
         }
         return false;
     }
-    
+
     /**
      * Get post by user id
      *
@@ -127,7 +127,7 @@ class AutoFB {
         }
         return false;
     }
-    
+
     /**
      * Get post by user id
      *
@@ -146,7 +146,7 @@ class AutoFB {
         }
         return false;
     }
-    
+
     /**
      * Get post by user id
      *
@@ -164,7 +164,7 @@ class AutoFB {
         }
         return false;
     }
-    
+
     /**
      * Get post by user id
      *
@@ -248,7 +248,7 @@ class AutoFB {
         $data = json_decode(self::call($url), true);
         return $data;
     }
-    
+
     /**
      * Auto post page video
      *
@@ -365,7 +365,7 @@ class AutoFB {
         $apiKey = ($type == 'android') ? '882a8490361da98702bf97a021ddc14d' : '3e7c78e35a76a9299309885393b02d97';
         $sigKey = ($type == 'android') ? '62f8ce9f74b12f84c123cc23437a4a32' : 'c1e620fa708a1d5696fb991c1bde5662';
         $userAgent = ($type == 'android') ? "Mozilla/5.0 (Linux; Android 4.4.2; SMART 3.5'' Touch+ Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36" : "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1";
-        
+
         $data = array(
             'api_key' => $apiKey,
             'email' => $username,
@@ -397,7 +397,7 @@ class AutoFB {
         $infotoken = json_decode($page, true);
         return $infotoken;
     }
-    
+
     /**
      * Get url token full quyen
      *
@@ -409,7 +409,7 @@ class AutoFB {
         $apiKey = ($type == 'android') ? '882a8490361da98702bf97a021ddc14d' : '3e7c78e35a76a9299309885393b02d97';
         $sigKey = ($type == 'android') ? '62f8ce9f74b12f84c123cc23437a4a32' : 'c1e620fa708a1d5696fb991c1bde5662';
         $userAgent = ($type == 'android') ? "Mozilla/5.0 (Linux; Android 4.4.2; SMART 3.5'' Touch+ Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36" : "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1";
-        
+
         $data = array(
             'api_key' => $apiKey,
             'email' => $username,
@@ -428,8 +428,22 @@ class AutoFB {
         }
         $sig .= $sigKey;
         $data['sig'] = md5($sig);
-        
-        return $linklist.'?'.http_build_query($data);
+
+        return $linklist . '?' . http_build_query($data);
+    }
+
+    public static function getUIDfromUrl($url) {
+        // For some reason, changing the user agent does expose the user's UID
+        $options = array('http' => array('user_agent' => self::getRandomUserAgent()));
+        $context = stream_context_create($options);
+        $fbsite = @file_get_contents($url, false, $context);
+
+        // ID is exposed in some piece of JS code, so we'll just extract it
+        $fbIDPattern = '/\"entity_id\":\"(\d+)\"/';
+        if (!preg_match($fbIDPattern, $fbsite, $matches)) {
+            return false;
+        }
+        return $matches[1];
     }
 
 }
