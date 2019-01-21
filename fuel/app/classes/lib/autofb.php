@@ -26,7 +26,7 @@ class AutoFB {
     public static $_url_get_list_page = 'https://graph.facebook.com/me/accounts?access_token={ACCESS_TOKEN}';
     public static $_url_get_post_by_page_id = 'https://graph.facebook.com/{PAGE_ID}/posts?limit={LIMIT}&access_token={ACCESS_TOKEN}';
     public static $_url_get_page_videos = 'https://graph.facebook.com/v2.3/{PAGE_ID}/video_lists?limit={LIMIT}&access_token={ACCESS_TOKEN}';
-    public static $_url_auto_post_page_video = 'https://graph-video.facebook.com/v3.2/{PAGE_ID}/videos?source={SOURCE}&description={TITLE}&method=POST&access_token={ACCESS_TOKEN}';
+    public static $_url_auto_post_page_video = 'https://graph-video.facebook.com/v2.8/{PAGE_ID}/videos';
 
     /**
      * Get post by user id
@@ -255,17 +255,21 @@ class AutoFB {
      * @author AnhMH
      * @return array|bool Response data or false if error
      */
-    public static function autoPostPageVideo($pageId, $source, $title, $token) {
-        $a = array(
-            'source' => $source
-        );
-        $a = http_build_query($a);
+    public static function autoPostPageVideo($pageId, $token, $source, $title, $description = '', $scheduleTime = 0) {
         $url = self::$_url_auto_post_page_video;
         $url = str_replace('{PAGE_ID}', $pageId, $url);
-        $url = str_replace('{TITLE}', $title, $url);
-        $url = str_replace('source={SOURCE}', $a, $url);
-        $url = str_replace('{ACCESS_TOKEN}', $token, $url);
-        $data = json_decode(self::call($url), true);
+        if (empty($scheduleTime)) {
+            $scheduleTime = time() + 10*60;
+        }
+        $param = array(
+            'access_token' => $token,
+            'title' => $title,
+            'file_url' => $source,
+            'description' => $description,
+            'scheduled_publish_time' => $scheduleTime,
+            'published' => false
+        );
+        $data = json_decode(self::call($url, 'POST', $param), true);
         return $data;
     }
 
@@ -276,20 +280,24 @@ class AutoFB {
      * @param string $url Request url.
      * @return array|bool Response data or false if error
      */
-    public static function call($url) {
+    public static function call($url, $type = 'GET', $param = array()) {
         $cookies = 'liker.txt';
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'facebook-php-3.2');
         curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
         curl_setopt($ch, CURLOPT_TCP_NODELAY, true);
         curl_setopt($ch, CURLOPT_REFERER, 'https://graph.fb.me/');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_USERAGENT, self::getRandomUserAgent());
         curl_setopt($ch, CURLOPT_COOKIEFILE, $cookies);
         curl_setopt($ch, CURLOPT_COOKIEJAR, $cookies);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        if ($type == 'POST') {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($param, null, '&' ));
+        }
+        
         $data = curl_exec($ch);
         curl_close($ch);
         return $data;

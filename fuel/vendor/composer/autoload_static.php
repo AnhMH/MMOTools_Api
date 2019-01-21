@@ -10,6 +10,7 @@ class ComposerStaticInita8d1a2b2151c21ef68932acce013e7c9
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '3109cb1a231dcd04bee1f9f620d46975' => __DIR__ . '/..' . '/paragonie/sodium_compat/autoload.php',
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
+        'c65d09b6820da036953a371c8c73a9b1' => __DIR__ . '/..' . '/facebook/graph-sdk/src/Facebook/polyfills.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -28,6 +29,7 @@ class ComposerStaticInita8d1a2b2151c21ef68932acce013e7c9
         'F' => 
         array (
             'Fuel\\Upload\\' => 12,
+            'Facebook\\' => 9,
         ),
         'C' => 
         array (
@@ -51,6 +53,10 @@ class ComposerStaticInita8d1a2b2151c21ef68932acce013e7c9
         'Fuel\\Upload\\' => 
         array (
             0 => __DIR__ . '/..' . '/fuelphp/upload/src',
+        ),
+        'Facebook\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/facebook/graph-sdk/src/Facebook',
         ),
         'Composer\\Installers\\' => 
         array (

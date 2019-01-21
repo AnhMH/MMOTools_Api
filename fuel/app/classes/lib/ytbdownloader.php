@@ -17,6 +17,7 @@ class YtbDownloader {
     public static $link_pattern = "/^(?:http(?:s)?:\/\/)?(?:www\.)?(?:m\.)?(?:youtu\.be\/|youtube\.com\/(?:(?:watch)?\?(?:.*&)?v(?:i)?=|(?:embed)\/))([^\?&\"'>]+)/";
     public static $video_url = '';
     public static $video_title = '';
+    public static $_url_search = 'https://www.googleapis.com/youtube/v3/search';
     
     public static function downloader($url) {
         if (!self::validateUrl($url)) {
@@ -155,5 +156,31 @@ class YtbDownloader {
         parse_str(self::getVideoInfo(), $data);
         $stream_link = $data["url_encoded_fmt_stream_map"];
         return explode(",", $stream_link); 
+    }
+    
+    /*
+     * Get list video
+     * return array
+     */
+    public static function ytbSearch($key, $channelId = '', $keyword = '', $maxResult = '50'){
+        $param = array(
+            'key' => $key,
+            'order' => 'date',
+            'part' => 'snippet',
+            'type' => 'video',
+            'maxResults' => $maxResult
+        );
+        if (!empty($channelId)) {
+            $param['channelId'] = $channelId;
+        }
+        if (!empty($keyword)) {
+            $param['q'] = $keyword;
+        }
+        $url = self::$_url_search;
+        $url .= "?".http_build_query($param);
+        
+        $data = json_decode(\Lib\AutoFB::call($url), true);
+        
+        return $data;
     }
 }

@@ -5,6 +5,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+use Facebook\Facebook;
 
 class Controller_Test extends \Controller_App {
 
@@ -15,41 +16,32 @@ class Controller_Test extends \Controller_App {
      * @return  Response
      */
     public function action_index() {
-        $url = 'https://www.facebook.com/mai.hoanganh.16#_';
-        $url = 'https://www.facebook.com/TIN-NHANH-365-291823958346497/?modal=admin_todo_tour';
-        $url = 'https://www.facebook.com/groups/HocVienYT/';
-        $a = Lib\AutoFB::getUIDfromUrl($url);
+        $channelId = 'UCZ0zEZe8pWhmNpPdzwfxx4A';
+        $key = 'AIzaSyCMCc_4fUlOGvY1PeP9Rw-TFs4qFDJJ1yE';
+        $data = Lib\YtbDownloader::ytbSearch($key, '', 'Tháng Tư Là Lời Nói Dối Của Anh');
         echo '<pre>';
-        print_r($a);
+        print_r($data);
         die();
-        // Youtube video url
-        $youtubeURL = 'https://www.youtube.com/watch?v=LFFibPk6f2Q';
-        $youtubeURL = 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4';
-//        $youtubeURL = 'https://r5---sn-uvu-c336.googlevideo.com/videoplayback?source=youtube&key=yt6&mime=video%2Fmp4&requiressl=yes&txp=5432432&initcwndbps=852500&ratebypass=yes&signature=82CCCF1CE990E87AC2A84EAC2316205452DF5803.7A066EAAA346A5A4EE81E0C6C2057C0159C2DE1F&ei=GBg0XPG6EOrRz7sPtqCmqAI&fvip=5&pl=24&sparams=dur%2Cei%2Cid%2Cinitcwndbps%2Cip%2Cipbits%2Citag%2Clmt%2Cmime%2Cmm%2Cmn%2Cms%2Cmv%2Cpl%2Cratebypass%2Crequiressl%2Csource%2Cexpire&mv=m&mt=1546917828&ms=au%2Conr&ip=1.10.186.157&lmt=1546867812552601&c=WEB&expire=1546939512&id=o-AOmnp7fwVm8spLd3F1WwXnnV9ETfGZ-LU5II3GufIdzr&dur=167.090&mn=sn-uvu-c336%2Csn-npoe7ned&mm=31%2C26&ipbits=0&itag=22&video_id=LFFibPk6f2Q&title=One+Piece+Chapter+930+Predictions+and+Release+Date%21';
-//        $source = Lib\YtbDownloader::downloader($youtubeURL);
-//        echo '<pre>';
-//        print_r($source);
-//        die();
-        
-        $pageId = '291823958346497';
-        $title = 'aaa';
-        $tokenPage = 'EAAAAUaZA8jlABAPHWc24KnaUpmGQlmvTBJXZCocMQHZCbRD5vmq3Q9JZCuVhYHEKjfemicXPfFcDiDxGdgPXaFjmTm4ZBHiYT8PV9VlhMfSuxVsfCBlYfSRuQtaQ5rJnWFVPhVHTZCxRyyQDzrZB5k5HASfGntnn7iGGzvHxrPbvAZDZD';
-        $token = 'EAAAAUaZA8jlABAGNA7wUR0nMxRDAcLAhC2lhRCW6mVJWxuYW2WfXVawNuAjoqFufW6nIPVZCYOKk2sVIhUvOvJo5ZCrISRXKF2pX4Qa8LhKhkZBJj13NBCKNZBgyIYREgzKXbBXu3JRBZB1tsUOxFEQWIBPuY8G89Cf6ZB7AsnDfwZDZD';
-//        $data = Lib\AutoFB::autoPostPageVideo($pageId, $youtubeURL, $title, $token);
-//        $data = Lib\AutoFB::getPageVideos($pageId, $token, 5000);
-        
-        $post_url = "https://graph-video.facebook.com/{$pageId}/videos?"
- . "title=" . $title. "&description=" . $title
- . "&access_token=". $token;
-        $ch = curl_init();
-        $data = array('name' => 'file', 'file' => '@'.realpath(APPPATH."logs/video.mp4"));// use realpath
-        curl_setopt($ch, CURLOPT_URL, $post_url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        $data = curl_exec($ch);
-        curl_close($ch);
+        $url = 'https://www.youtube.com/watch?v=6aFwjjIyfD8';
+        $appId = '100274197065981';
+        $appSecret = 'ceb5eaddbebb4590a991cf32a956f2f6';
+        $accessToken = 'EAAAAUaZA8jlABAFwybRQpCffXgZCL5BRoI8KIa1uwu3KB8q5BKZA5VFFZCcZAvvz74yCQ7m9LIssFoI1ZCjX3ZByyIoGqvCut4tlzVwO6r3vOTlvtlpZB2hCffiFf1YNvgRRt2pnmaCTnU7bSNp2J5WdddvFRR2xIyMHBEAOhn3hKf2TQWFbfUoR';
+        $config = array(
+            'appId' => $appId,
+            'secret' => $appSecret,
+        );
+        $fb = new Lib\Facebook($config);
+        $feed = '/v2.8/165729847563083/videos';
+        $params = array(
+            'access_token' => $accessToken,
+            'title' => 'aa',
+            'description' => 'bb',
+            'file_url' => Lib\YtbDownloader::downloader($url),
+//            'URL' => 'https://www.youtube.com/watch?v=CcCihBrD2UA',
+//            'file_url' => 'https://r3---sn-npoeened.googlevideo.com/videoplayback?txp=5531432&url=https%3A%2F%2Fr3---sn-npoeened.googlevideo.com%2Fvideoplayback%3Ftxp%3D5531432&lmt=1542114690650439&key=yt6&id=o-AEhIjWadaAiyt1EFYcTxdGOCD3bxaunTfgj3Pd_zwQTH&mn=sn-npoeened,sn-i3b7kn7k&c=WEB&ipbits=0&mm=31,26&ms=au,onr&mv=u&dur=443.501&source=youtube&pl=22&mime=video%2Fmp4&mt=1548089399&ip=45.252.248.10&fvip=1&ratebypass=yes&signature=CC9D2E36CC0BCF48A64BBB6A15FBA66C9F83FD93.05D51D060B2B443A3847DF933D4D172ED4C6152D&requiressl=yes&itag=22&ei=LfpFXO3AOceK1AbErry4Dw&expire=1548111502&sparams=dur,ei,id,ip,ipbits,itag,lmt,mime,mm,mn,ms,mv,pl,ratebypass,requiressl,source,expire&type=video%2Fmp4%3B+codecs%3D%22avc1.64001F,+mp4a.40.2%22&quality=hd720&signature=CC9D2E36CC0BCF48A64BBB6A15FBA66C9F83FD93.05D51D060B2B443A3847DF933D4D172ED4C6152D'
+        );
+        $data = $fb->api( $feed, 'POST', $params );
         echo '<pre>';
-//        print_r($source);
         print_r($data);
         die();
     }
