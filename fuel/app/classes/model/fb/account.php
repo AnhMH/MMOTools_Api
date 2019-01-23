@@ -289,6 +289,7 @@ class Model_Fb_Account extends Model_Abstract {
         $self->set('admin_id', $adminId);
         $self->set('created', $time);
         $self->set('updated', $time);
+        $self->set('is_live', 1);
         if (!empty($param['email'])) {
             $self->set('email', $param['email']);
         }
@@ -395,13 +396,15 @@ class Model_Fb_Account extends Model_Abstract {
                 $check = Lib\AutoFB::getProfile($val['token']);
                 $addUpdateData[] = array(
                     'id' => $val['id'],
-                    'is_live' => !empty($check['id']) ? 1 : 0
+                    'is_live' => !empty($check['id']) ? 1 : 0,
+                    'updated' => time()
                 );
             }
             if (!empty($addUpdateData)) {
                 self::batchInsert(self::$_table_name, $addUpdateData, array(
                     'id' => DB::expr('VALUES(id)'),
-                    'is_live' => DB::expr('VALUES(is_live)')
+                    'is_live' => DB::expr('VALUES(is_live)'),
+                    'updated' => DB::expr('VALUES(updated)')
                 ));
             }
         }
