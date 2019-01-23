@@ -62,4 +62,11 @@ class Controller_FBAccounts extends \Controller_App {
     public function action_getuidfromurl() {
         return \Bus\FBAccounts_GetUIDFromUrl::getInstance()->execute();
     }
+    
+    /**
+     * FBAccount check is live
+     */
+    public function action_checklive() {
+        return \Bus\FBAccounts_CheckLive::getInstance()->execute();
+    }
 }

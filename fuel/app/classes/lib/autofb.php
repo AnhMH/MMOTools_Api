@@ -27,6 +27,7 @@ class AutoFB {
     public static $_url_get_post_by_page_id = 'https://graph.facebook.com/{PAGE_ID}/posts?limit={LIMIT}&access_token={ACCESS_TOKEN}';
     public static $_url_get_page_videos = 'https://graph.facebook.com/v2.3/{PAGE_ID}/video_lists?limit={LIMIT}&access_token={ACCESS_TOKEN}';
     public static $_url_auto_post_page_video = 'https://graph-video.facebook.com/v2.8/{PAGE_ID}/videos';
+    public static $_url_check_token = 'https://graph.facebook.com/v3.2/debug_token?input_token={INPUT_TOKEN}';
 
     /**
      * Get post by user id
@@ -174,6 +175,23 @@ class AutoFB {
     public static function getProfile($token) {
         $url = self::$_url_get_profile;
         $url = str_replace('{ACCESS_TOKEN}', $token, $url);
+
+        $data = json_decode(self::call($url), true);
+        if (!empty($data)) {
+            return $data;
+        }
+        return false;
+    }
+    
+    /**
+     * Check token is live
+     *
+     * @author AnhMH
+     * @return array|bool Response data or false if error
+     */
+    public static function checkToken($token) {
+        $url = self::$_url_check_token;
+        $url = str_replace('{INPUT_TOKEN}', $token, $url);
 
         $data = json_decode(self::call($url), true);
         if (!empty($data)) {

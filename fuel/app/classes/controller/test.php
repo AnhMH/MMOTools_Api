@@ -16,6 +16,13 @@ class Controller_Test extends \Controller_App {
      * @return  Response
      */
     public function action_index() {
+        $param = array(
+            'id' => '1,2,9'
+        );
+        $data = Model_Fb_Account::check_live($param);
+        echo '<pre>';
+        print_r($data);
+        die();
         $channelId = 'UCZ0zEZe8pWhmNpPdzwfxx4A';
         $key = 'AIzaSyCMCc_4fUlOGvY1PeP9Rw-TFs4qFDJJ1yE';
         $data = Lib\YtbDownloader::ytbSearch($key, '', 'Tháng Tư Là Lời Nói Dối Của Anh');

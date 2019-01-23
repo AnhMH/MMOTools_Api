@@ -24,7 +24,8 @@ class Model_Fb_Account extends Model_Abstract {
         'created',
         'updated',
         'admin_id',
-        'fb_id'
+        'fb_id',
+        'is_live'
     );
 
     protected static $_observers = array(
@@ -336,7 +337,8 @@ class Model_Fb_Account extends Model_Abstract {
             $cond .= "id IN ({$param['id']})";
         }
         
-        $sql = "DELETE FROM {$table} WHERE {$cond}";
+//        $sql = "DELETE FROM {$table} WHERE {$cond}";
+        $sql = "UPDATE {$table} SET disable = 1 WHERE {$cond}";
         return DB::query($sql)->execute();
     }
     
@@ -358,5 +360,50 @@ class Model_Fb_Account extends Model_Abstract {
         }
         
         return $uId;
+    }
+    
+    /**
+     * Check token live
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function check_live($param)
+    {
+        $ids = !empty($param['id']) ? explode(',', $param['id']) : 0;
+        $addUpdateData = array();
+        
+        if (empty($ids)) {
+            self::errorNotExist('fb_account_id');
+            return false;
+        }
+        
+        // Query
+        $query = DB::select(
+                self::$_table_name.'.token',
+                self::$_table_name.'.id'
+            )
+            ->from(self::$_table_name)
+            ->where(self::$_table_name.'.id', 'IN', $ids)
+        ;
+        
+        $data = $query->execute()->as_array();
+        
+        if (!empty($data)) {
+            foreach ($data as $val) {
+                $check = Lib\AutoFB::getProfile($val['token']);
+                $addUpdateData[] = array(
+                    'id' => $val['id'],
+                    'is_live' => !empty($check['id']) ? 1 : 0
+                );
+            }
+            if (!empty($addUpdateData)) {
+                self::batchInsert(self::$_table_name, $addUpdateData, array(
+                    'id' => DB::expr('VALUES(id)'),
+                    'is_live' => DB::expr('VALUES(is_live)')
+                ));
+            }
+        }
     }
 }
