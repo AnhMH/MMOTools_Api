@@ -17,9 +17,9 @@ class Controller_Test extends \Controller_App {
      */
     public function action_index() {
         $param = array(
-            'id' => '1,2,9'
+            'id' => '11, 12'
         );
-        $data = Model_Fb_Account::check_live($param);
+        $data = Model_Fb_Account::update_page($param);
         echo '<pre>';
         print_r($data);
         die();

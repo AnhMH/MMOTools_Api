@@ -166,7 +166,7 @@ class Model_Fb_Account extends Model_Abstract {
         
         // Get data
         $data = $query->execute()->as_array();
-        $total = !empty($data) ? DB::count_last_query(self::$slave_db) : 0;
+        $total = 0;//!empty($data) ? DB::count_last_query(self::$slave_db) : 0;
         
         return array(
             'total' => $total,
@@ -408,5 +408,69 @@ class Model_Fb_Account extends Model_Abstract {
                 ));
             }
         }
+        
+        return true;
+    }
+    
+    /**
+     * Check token live
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function update_page($param)
+    {
+        $ids = !empty($param['id']) ? explode(',', $param['id']) : 0;
+        $addUpdateData = array();
+        
+        if (empty($ids)) {
+            self::errorNotExist('fb_account_id');
+            return false;
+        }
+        
+        // Query
+        $query = DB::select(
+                self::$_table_name.'.token',
+                self::$_table_name.'.id',
+                self::$_table_name.'.admin_id'
+            )
+            ->from(self::$_table_name)
+            ->where(self::$_table_name.'.id', 'IN', $ids)
+        ;
+        
+        $data = $query->execute()->as_array();
+        if (!empty($data)) {
+            foreach ($data as $val) {
+                $pages = Lib\AutoFB::getListPages($val['token'], 5000);
+                if (!empty($pages)) {
+                    foreach ($pages as $p) {
+                        $addUpdateData[] = array(
+                            'fb_account_id' => $val['id'],
+                            'fb_id' => $p['id'],
+                            'name' => $p['name'],
+                            'page_token' => $p['access_token'],
+                            'category' => $p['category'],
+                            'type' => 0,
+                            'admin_id' => $val['admin_id'],
+                            'created' => time(),
+                            'updated' => time()
+                        );
+                    }
+                }
+            }
+            if (!empty($addUpdateData)) {
+                self::batchInsert('fb_pages', $addUpdateData, array(
+                    'fb_account_id' => DB::expr('VALUES(fb_account_id)'),
+                    'name' => DB::expr('VALUES(name)'),
+                    'fb_id' => DB::expr('VALUES(fb_id)'),
+                    'page_token' => DB::expr('VALUES(page_token)'),
+                    'category' => DB::expr('VALUES(category)'),
+                    'updated' => DB::expr('VALUES(updated)')
+                ));
+            }
+        }
+        
+        return true;
     }
 }

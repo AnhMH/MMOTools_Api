@@ -69,4 +69,11 @@ class Controller_FBAccounts extends \Controller_App {
     public function action_checklive() {
         return \Bus\FBAccounts_CheckLive::getInstance()->execute();
     }
+    
+    /**
+     * FBAccount update page
+     */
+    public function action_updatepage() {
+        return \Bus\FBAccounts_UpdatePage::getInstance()->execute();
+    }
 }
