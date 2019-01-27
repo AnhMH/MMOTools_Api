@@ -76,4 +76,11 @@ class Controller_FBAccounts extends \Controller_App {
     public function action_updatepage() {
         return \Bus\FBAccounts_UpdatePage::getInstance()->execute();
     }
+    
+    /**
+     * FBAccount reup search
+     */
+    public function action_reupsearch() {
+        return \Bus\FBAccounts_ReupSearch::getInstance()->execute();
+    }
 }

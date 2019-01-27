@@ -42,6 +42,16 @@ class Model_Fb_Account extends Model_Abstract {
     /** @var array $_table_name name of table */
     protected static $_table_name = 'fb_accounts';
     
+    /** @var array $_table_name name of table */
+    protected static $_type_youtube_keyword = 1;
+    protected static $_type_youtube_channel = 11;
+    protected static $_type_youtube_video = 111;
+    
+    protected static $_type_facebook_page_id = 2;
+    protected static $_type_facebook_video = 22;
+    
+    protected static $_type_dailymotion = 3;
+    
     /**
      * Add update info
      *
@@ -194,6 +204,9 @@ class Model_Fb_Account extends Model_Abstract {
         ;
                         
         // Filter
+        if (!empty($param['is_live'])) {
+            $query->where(self::$_table_name.'.is_live', 1);
+        }
         if (isset($param['disable']) && $param['disable'] != '') {
             $disable = !empty($param['disable']) ? 1 : 0;
             $query->where(self::$_table_name.'.disable', $disable);
@@ -472,5 +485,27 @@ class Model_Fb_Account extends Model_Abstract {
         }
         
         return true;
+    }
+    
+    /**
+     * Get reup data
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function reup_search($param)
+    {
+        $source = !empty($param['source']) ? $param['source'] : '';
+        $type = !empty($param['type']) ? $param['type'] : '';
+        $limit = !empty($param['limit']) ? $param['limit'] : 10;
+        $ytbKey = 'AIzaSyCMCc_4fUlOGvY1PeP9Rw-TFs4qFDJJ1yE';
+        $result = array();
+        
+        if ($type == self::$_type_youtube_keyword) {
+            $result = Lib\YtbDownloader::ytbSearch($ytbKey, '', $source, $limit);
+        }
+        
+        return $result;
     }
 }

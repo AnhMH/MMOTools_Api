@@ -122,6 +122,12 @@ class Model_Fb_Page extends Model_Abstract {
             $disable = !empty($param['disable']) ? 1 : 0;
             $query->where(self::$_table_name.'.disable', $disable);
         }
+        if (!empty($adminId)) {
+            $query->where(self::$_table_name.'.admin_id', $adminId);
+        }
+        if (!empty($param['fb_account_id'])) {
+            $query->where(self::$_table_name.'.fb_account_id', $param['fb_account_id']);
+        }
         
         // Pagination
         if (!empty($param['page']) && $param['limit']) {
