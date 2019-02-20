@@ -15,16 +15,15 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
     /** @var array $_properties field of table */
     protected static $_properties = array(
         'id',
-        'fb_id', // id bai viet
-        'fb_account_id',
-        'content',
-        'is_repeat',
-        'is_comment',
-        'time_repeat',
-        'created',
         'admin_id',
-        'total_comment',
+        'fb_id',
         'type',
+        'title',
+        'content',
+        'time_start',
+        'time_end',
+        'total_comment',
+        'created',
         'updated'
     );
 
@@ -40,7 +39,7 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
     );
 
     /** @var array $_table_name name of table */
-    protected static $_table_name = 'fb_auto_comment_posts';
+    protected static $_table_name = 'fb_auto_comments';
     
     /**
      * Add update info
@@ -58,24 +57,13 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         $self = array();
         $new = false;
         
-        // Check if exist User
         if (!empty($id)) {
             $self = self::find($id);
             if (empty($self)) {
-                self::errorNotExist('fb_auto_comment_id');
+                self::errorNotExist('id');
                 return false;
             }
         } else {
-            $check = self::find('first', array(
-                'where' => array(
-                    'fb_account_id' => $param['fb_account_id'],
-                    'fb_id' => $param['fb_postid']
-                )
-            ));
-            if (!empty($check)) {
-                self::errorDuplicate('fb_id');
-                return false;
-            }
             $self = new self;
             $new = true;
         }
@@ -86,20 +74,23 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         if (!empty($param['fb_postid'])) {
             $self->set('fb_id', $param['fb_postid']);
         }
-        if (!empty($param['fb_account_id'])) {
-            $self->set('fb_account_id', $param['fb_account_id']);
+        if (isset($param['time_start'])) {
+            $self->set('time_start', $param['time_start']);
         }
-        if (isset($param['is_repeat'])) {
-            $self->set('is_repeat', $param['is_repeat']);
+        if (isset($param['time_end'])) {
+            $self->set('time_end', $param['time_end']);
         }
-        if (!empty($param['time_repeat'])) {
-            $self->set('time_repeat', $param['time_repeat']);
+        if (!empty($param['title'])) {
+            $self->set('title', $param['title']);
         }
         if (!empty($param['content'])) {
             $self->set('content', $param['content']);
         }
         if (!empty($param['type'])) {
             $self->set('type', $param['type']);
+        }
+        if (!empty($param['total_comment'])) {
+            $self->set('total_comment', $param['total_comment']);
         }
         if ($new) {
             $self->set('created', $time);
@@ -129,18 +120,14 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         
         // Query
         $query = DB::select(
-                self::$_table_name.'.*',
-                array('fb_accounts.fb_id', 'fb_account_fb_id'),
-                array('fb_accounts.name', 'fb_account_name')
+                self::$_table_name.'.*'
             )
             ->from(self::$_table_name)
-            ->join('fb_accounts')
-            ->on('fb_accounts.id', '=', self::$_table_name.'.fb_account_id')
         ;
         
         // Filter
-        if (!empty($param['fb_account_id'])) {
-            $query->where(self::$_table_name.'.fb_account_id', $param['fb_account_id']);
+        if (!empty($param['type'])) {
+            $query->where(self::$_table_name.'.type', $param['type']);
         }
         
         // Pagination
@@ -167,7 +154,7 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         
         // Get data
         $data = $query->execute()->as_array();
-        $total = !empty($data) ? DB::count_last_query(self::$slave_db) : 0;
+        $total = 0;//!empty($data) ? DB::count_last_query(self::$slave_db) : 0;
         
         return array(
             'total' => $total,
