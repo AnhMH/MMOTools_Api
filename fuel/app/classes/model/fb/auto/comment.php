@@ -24,7 +24,8 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         'time_end',
         'total_comment',
         'created',
-        'updated'
+        'updated',
+        'time_repeat'
     );
 
     protected static $_observers = array(
@@ -53,6 +54,9 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         // Init
         $adminId = !empty($param['admin_id']) ? $param['admin_id'] : 0;
         $id = !empty($param['id']) ? $param['id'] : 0;
+        $type = !empty($param['type']) ? $param['type'] : 1;
+        $totalComment = !empty($param['total_comment']) ? $param['total_comment'] : 5;
+        $content = !empty($param['content']) ? $param['content'] : '';
         $time = time();
         $self = array();
         $new = false;
@@ -71,6 +75,9 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         // Set data
         $self->set('admin_id', $adminId);
         $self->set('updated', $time);
+        $self->set('type', $type);
+        $self->set('total_comment', $totalComment);
+        $self->set('content', $content);
         if (!empty($param['fb_postid'])) {
             $self->set('fb_id', $param['fb_postid']);
         }
@@ -83,14 +90,8 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         if (!empty($param['title'])) {
             $self->set('title', $param['title']);
         }
-        if (!empty($param['content'])) {
-            $self->set('content', $param['content']);
-        }
-        if (!empty($param['type'])) {
-            $self->set('type', $param['type']);
-        }
-        if (!empty($param['total_comment'])) {
-            $self->set('total_comment', $param['total_comment']);
+        if (!empty($param['time_repeat'])) {
+            $self->set('time_repeat', $param['time_repeat']);
         }
         if ($new) {
             $self->set('created', $time);
@@ -100,6 +101,30 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         if ($self->save()) {
             if (empty($self->id)) {
                 $self->id = self::cached_object($self)->_original['id'];
+            }
+            if (!empty($param['add_comment_post']) && $type == 1) {
+                $content = explode("\n", $content);
+                $fbAccounts = Model_Fb_Account::get_all(array(
+                    'is_live' => 1,
+                    'limit' => $totalComment,
+                    'page' => 1
+                ));
+                if (!empty($fbAccounts)) {
+                    $posts = array();
+                    foreach ($fbAccounts as $val) {
+                        $posts[] = array(
+                            'fb_account_id' => $val['id'],
+                            'content' => $content[array_rand($content)],
+                            'fb_auto_comment_id' => $self->id,
+                            'admin_id' => $adminId,
+                            'created' => $time,
+                            'updated' => $time,
+                        );
+                    }
+                    if (!empty($posts)) {
+                        self::batchInsert('fb_auto_comment_posts', $posts, array());
+                    }
+                }
             }
             return $self->id;
         }
