@@ -16,6 +16,11 @@ class Controller_Test extends \Controller_App {
      * @return  Response
      */
     public function action_index() {
+        $data = Model_Fb_Auto_Comment_Post::auto_comment();
+        echo '<pre>';
+        print_r($data);
+        die();
+        
         $param = array(
             'id' => '11, 12'
         );
@@ -64,26 +69,6 @@ class Controller_Test extends \Controller_App {
         $account = $_GET['acc'];
         $pass = $_GET['pw'];
         echo \Lib\Util::encodePassword($pass, $account);
-    }
-
-    /**
-     * import coupon from attvn
-     *
-     * @access  public
-     * @return  Response
-     */
-    public function action_attvnimportcoupon() {
-        Model_Atvn_Coupon::import();
-    }
-
-    /**
-     * import top product from attvn
-     *
-     * @access  public
-     * @return  Response
-     */
-    public function action_attvnimporttopproduct() {
-        Model_Atvn_Product::import();
     }
 
     /**
@@ -142,7 +127,7 @@ class Controller_Test extends \Controller_App {
      */
     public function action_fbautocomment() {
         ini_set('memory_limit', -1);
-        Model_Fb_Auto_Comment::auto_comment();
+        Model_Fb_Auto_Comment_Post::auto_comment();
     }
 
 }

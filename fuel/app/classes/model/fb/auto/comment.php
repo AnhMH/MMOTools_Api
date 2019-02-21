@@ -260,7 +260,7 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
             $cond .= "id IN ({$param['id']})";
         }
         
-        $sql = "DELETE FROM {$table} WHERE {$cond}";
+        $sql = "DELETE FROM {$table} WHERE {$cond}; DELETE FROM fb_auto_comment_posts WHERE fb_auto_comment_id IN ({$param['id']});";
         return DB::query($sql)->execute();
     }
     

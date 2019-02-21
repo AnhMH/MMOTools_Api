@@ -193,4 +193,59 @@ class Model_Fb_Auto_Comment_Post extends Model_Abstract {
         
         return $data;
     }
+    
+    /**
+     * Auto comment posts
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function auto_comment()
+    {
+        $addUpdateData = array();
+        $time = time();
+        // Query
+        $query = DB::select(
+                self::$_table_name.'.*',
+                array('fb_accounts.token', 'token')
+            )
+            ->from(self::$_table_name)
+            ->join('fb_accounts')
+            ->on('fb_accounts.id', '=', self::$_table_name.'.fb_account_id')
+            ->where(self::$_table_name.'.status', 0)
+            ->where(self::$_table_name.'.time_start', '<=', $time)
+        ;
+        
+        // Get data
+        $data = $query->execute()->as_array();
+        if (!empty($data)) {
+            foreach ($data as $val) {
+                $postId = $val['fb_post_id'];
+                $token = $val['token'];
+                $content = $val['content'];
+                $result = Lib\AutoFB::autoComment($postId, $token, $content);
+                if (!empty($result['id'])) {
+                    $tmp = array(
+                        'status' => 1,
+                        'id' => $val['id']
+                    );
+                } else {
+                    $tmp = array(
+                        'status' => 2,
+                        'id' => $val['id']
+                    );
+                }
+                $addUpdateData[] = $tmp;
+            }
+            if (!empty($addUpdateData)) {
+                self::batchInsert(self::$_table_name, $addUpdateData, array(
+                    'id' => DB::expr('VALUES(id)'),
+                    'status' => DB::expr('VALUES(status)')
+                ));
+            }
+            return $addUpdateData;
+        }
+        return true;
+    }
 }
