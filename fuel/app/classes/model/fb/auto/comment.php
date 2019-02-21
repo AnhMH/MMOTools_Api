@@ -226,6 +226,9 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
             $disable = !empty($param['disable']) ? 1 : 0;
             $query->where(self::$_table_name.'.disable', $disable);
         }
+        if (!empty($param['type'])) {
+            $query->where(self::$_table_name.'.type', $param['type']);
+        }
         
         // Pagination
         if (!empty($param['page']) && $param['limit']) {

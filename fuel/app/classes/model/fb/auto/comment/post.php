@@ -248,4 +248,70 @@ class Model_Fb_Auto_Comment_Post extends Model_Abstract {
         }
         return true;
     }
+    
+    /**
+     * Auto comment posts
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function set_page_comment()
+    {
+        $autoComments = Model_Fb_Auto_Comment::get_all(array(
+            'type' => 2
+        ));
+        if (!empty($autoComments)) {
+            $fbAccount = Model_Fb_Account::find('first', array(
+                'where' => array(
+                    'is_live' => 1
+                )
+            ));
+            if (!empty($fbAccount['token'])) {
+                $token = $fbAccount['token'];
+                $addUpdateData = array();
+                $fbPages = Model_Fb_Page::get_all(array(
+                    'disable' => 0,
+                    'limit' => 50,
+                    'page' => 1,
+                    'random' => true
+                ));
+                if (empty($fbPages)) {
+                    return false;
+                }
+                foreach ($autoComments as $ac) {
+                    $pageId = $ac['fb_id'];
+                    $time = time();
+                    $timeStart = $time;
+                    $timeRepeat = $ac['time_repeat'];
+                    $totalComment = $ac['total_comment'];
+                    $getPost = Lib\AutoFB::getPostByPageId($pageId, $token, 1);
+                    $fbPostId = !empty($getPost[0]['id']) ? $getPost[0]['id'] : '';
+                    $content = explode("\n", $ac['content']);
+                    $count = 1;
+                    foreach ($fbPages as $val) {
+                        if ($count > $totalComment) {
+                            break;
+                        }
+                        $timeStart += $timeRepeat;
+                        $addUpdateData[] = array(
+                            'fb_account_id' => $val['id'],
+                            'content' => $content[array_rand($content)],
+                            'fb_auto_comment_id' => $ac['id'],
+                            'admin_id' => $ac['admin_id'],
+                            'created' => $time,
+                            'updated' => $time,
+                            'fb_post_id' => $fbPostId,
+                            'time_start' => $timeStart
+                        );
+                        $count++;
+                    }
+                }
+                if (!empty($addUpdateData)) {
+                    self::batchInsert('fb_auto_comment_posts', $addUpdateData, array());
+                }
+            }
+        }
+        return true;
+    }
 }

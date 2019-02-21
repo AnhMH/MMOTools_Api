@@ -115,13 +115,14 @@ class Model_Fb_Page extends Model_Abstract {
                 self::$_table_name.'.*'
             )
             ->from(self::$_table_name)
+            ->where(self::$_table_name.'.disable', 0)
         ;
                         
         // Filter
-        if (isset($param['disable']) && $param['disable'] != '') {
-            $disable = !empty($param['disable']) ? 1 : 0;
-            $query->where(self::$_table_name.'.disable', $disable);
-        }
+//        if (isset($param['disable']) && $param['disable'] != '') {
+//            $disable = !empty($param['disable']) ? 1 : 0;
+//            $query->where(self::$_table_name.'.disable', $disable);
+//        }
         if (!empty($adminId)) {
             $query->where(self::$_table_name.'.admin_id', $adminId);
         }
@@ -136,7 +137,9 @@ class Model_Fb_Page extends Model_Abstract {
         }
         
         // Sort
-        if (!empty($param['sort'])) {
+        if (!empty($param['random'])) {
+            $query->order_by(DB::expr('RAND()'));
+        } else if (!empty($param['sort'])) {
             if (!self::checkSort($param['sort'])) {
                 self::errorParamInvalid('sort');
                 return false;

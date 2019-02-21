@@ -26,7 +26,7 @@ class Controller_Test extends \Controller_App {
 //        }
         
         
-        $data = Model_Fb_Auto_Comment_Post::auto_comment();
+        $data = Model_Fb_Auto_Comment_Post::set_page_comment();
         echo '<pre>';
         print_r($data);
         die();
@@ -138,6 +138,17 @@ class Controller_Test extends \Controller_App {
     public function action_fbautocomment() {
         ini_set('memory_limit', -1);
         Model_Fb_Auto_Comment_Post::auto_comment();
+    }
+    
+    /**
+     * Set comment for page
+     *
+     * @access  public
+     * @return  Response
+     */
+    public function action_fbsetpagecomment() {
+        ini_set('memory_limit', -1);
+        Model_Fb_Auto_Comment_Post::set_page_comment();
     }
 
 }
