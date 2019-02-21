@@ -16,6 +16,16 @@ class Controller_Test extends \Controller_App {
      * @return  Response
      */
     public function action_index() {
+//        $data = Model_Fb_Page::get_all(array('disable' => 0));
+//        $result = array();
+//        foreach ($data as $val) {
+//            $postId = 352966248639087;
+//            $content = 'Iu qua';
+//            $token = $val['page_token'];
+//            $result[] = Lib\AutoFB::autoComment($postId, $token, $content);
+//        }
+        
+        
         $data = Model_Fb_Auto_Comment_Post::auto_comment();
         echo '<pre>';
         print_r($data);

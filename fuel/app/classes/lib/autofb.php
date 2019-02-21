@@ -28,6 +28,7 @@ class AutoFB {
     public static $_url_get_page_videos = 'https://graph.facebook.com/v2.3/{PAGE_ID}/video_lists?limit={LIMIT}&access_token={ACCESS_TOKEN}';
     public static $_url_auto_post_page_video = 'https://graph-video.facebook.com/v2.8/{PAGE_ID}/videos';
     public static $_url_check_token = 'https://graph.facebook.com/v3.2/debug_token?input_token={INPUT_TOKEN}';
+    public static $_url_create_page = 'https://graph.facebook.com/{USER_ID}/accounts';
 
     /**
      * Get post by user id
@@ -198,6 +199,28 @@ class AutoFB {
             return $data;
         }
         return false;
+    }
+    
+    /**
+     * Auto create page
+     *
+     * @author AnhMH
+     * @return array|bool Response data or false if error
+     */
+    public static function autoCreatePage($userId, $token, $name, $picture = '', $coverPhoto = '', $category = 'PERSONAL_BLOG', $about = 'Blog ca nhan') {
+        $url = self::$_url_create_page;
+        $url = str_replace('{USER_ID}', $userId, $url);
+
+        $param = array(
+            'access_token' => $token,
+            'name' => $name,
+            'picture' => $picture,
+            'cover_photo' => $coverPhoto,
+            'about' => $about,
+            'category_enum' => $category
+        );
+        $data = json_decode(self::call($url, 'POST', $param), true);
+        return $data;
     }
 
     /**

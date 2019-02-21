@@ -102,17 +102,28 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
             if (empty($self->id)) {
                 $self->id = self::cached_object($self)->_original['id'];
             }
-            if (!empty($param['add_comment_post']) && $type == 1) {
+            if (!empty($param['add_comment_post'])) {
                 $content = explode("\n", $content);
-                $fbAccounts = Model_Fb_Account::get_all(array(
-                    'is_live' => 1,
+                $fbPages = Model_Fb_Page::get_all(array(
+                    'disable' => 0,
                     'limit' => $totalComment,
                     'page' => 1
                 ));
-                if (!empty($fbAccounts)) {
+                if (!empty($fbPages)) {
                     $posts = array();
                     $timeStart = $time;
-                    foreach ($fbAccounts as $val) {
+                    if ($type == 2) { //auto page
+                        $fbAccount = Model_Fb_Account::find('first', array(
+                            'where' => array(
+                                'is_live' => 1
+                            )
+                        ));
+                        if (!empty($fbAccount['token'])) {
+                            $getPost = Lib\AutoFB::getPostByPageId($fbPostId, $fbAccount['token'], 1);
+                            $fbPostId = !empty($getPost[0]['id']) ? $getPost[0]['id'] : '';
+                        }
+                    }
+                    foreach ($fbPages as $val) {
                         $timeStart += $timeRepeat;
                         $posts[] = array(
                             'fb_account_id' => $val['id'],

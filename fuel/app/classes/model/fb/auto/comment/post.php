@@ -149,12 +149,12 @@ class Model_Fb_Auto_Comment_Post extends Model_Abstract {
         // Query
         $query = DB::select(
                 self::$_table_name.'.*',
-                array('fb_accounts.fb_id', 'fb_account_fb_id'),
-                array('fb_accounts.name', 'fb_account_name')
+                array('fb_pages.fb_id', 'fb_account_fb_id'),
+                array('fb_pages.name', 'fb_account_name')
             )
             ->from(self::$_table_name)
-            ->join('fb_accounts', 'LEFT')
-            ->on('fb_accounts.id', '=', self::$_table_name.'.fb_account_id')
+            ->join('fb_pages', 'LEFT')
+            ->on('fb_pages.id', '=', self::$_table_name.'.fb_account_id')
         ;
                         
         // Filter
@@ -208,11 +208,11 @@ class Model_Fb_Auto_Comment_Post extends Model_Abstract {
         // Query
         $query = DB::select(
                 self::$_table_name.'.*',
-                array('fb_accounts.token', 'token')
+                array('fb_pages.page_token', 'token')
             )
             ->from(self::$_table_name)
-            ->join('fb_accounts')
-            ->on('fb_accounts.id', '=', self::$_table_name.'.fb_account_id')
+            ->join('fb_pages')
+            ->on('fb_pages.id', '=', self::$_table_name.'.fb_account_id')
             ->where(self::$_table_name.'.status', 0)
             ->where(self::$_table_name.'.time_start', '<=', $time)
         ;
