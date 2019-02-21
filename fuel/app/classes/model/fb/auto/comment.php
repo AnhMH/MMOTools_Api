@@ -57,6 +57,8 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         $type = !empty($param['type']) ? $param['type'] : 1;
         $totalComment = !empty($param['total_comment']) ? $param['total_comment'] : 5;
         $content = !empty($param['content']) ? $param['content'] : '';
+        $timeRepeat = !empty($param['time_repeat']) ? $param['time_repeat'] : 5*60;
+        $fbPostId = !empty($param['fb_postid']) ? $param['fb_postid'] : '';
         $time = time();
         $self = array();
         $new = false;
@@ -78,9 +80,7 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
         $self->set('type', $type);
         $self->set('total_comment', $totalComment);
         $self->set('content', $content);
-        if (!empty($param['fb_postid'])) {
-            $self->set('fb_id', $param['fb_postid']);
-        }
+        $self->set('fb_id', $fbPostId);
         if (isset($param['time_start'])) {
             $self->set('time_start', $param['time_start']);
         }
@@ -111,7 +111,9 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
                 ));
                 if (!empty($fbAccounts)) {
                     $posts = array();
+                    $timeStart = $time;
                     foreach ($fbAccounts as $val) {
+                        $timeStart += $timeRepeat;
                         $posts[] = array(
                             'fb_account_id' => $val['id'],
                             'content' => $content[array_rand($content)],
@@ -119,6 +121,8 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
                             'admin_id' => $adminId,
                             'created' => $time,
                             'updated' => $time,
+                            'fb_post_id' => $fbPostId,
+                            'time_start' => $timeStart
                         );
                     }
                     if (!empty($posts)) {
@@ -275,6 +279,10 @@ class Model_Fb_Auto_Comment extends Model_Abstract {
             self::errorNotExist('auto_comment_id');
             return false;
         }
+        
+        $data['posts'] = Model_Fb_Auto_Comment_Post::get_all(array(
+            'fb_auto_comment_id' => $id
+        ));
         
         return $data;
     }

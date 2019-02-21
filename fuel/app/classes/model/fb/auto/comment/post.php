@@ -21,7 +21,9 @@ class Model_Fb_Auto_Comment_Post extends Model_Abstract {
         'content',
         'status',
         'created',
-        'updated'
+        'updated',
+        'fb_post_id',
+        'time_start'
     );
 
     protected static $_observers = array(
@@ -129,6 +131,66 @@ class Model_Fb_Auto_Comment_Post extends Model_Abstract {
                 ));
             }
         }
+        return $data;
+    }
+    
+    /**
+     * Get all
+     *
+     * @author AnhMH
+     * @param array $param Input data
+     * @return int|bool User ID or false if error
+     */
+    public static function get_all($param)
+    {
+        // Init
+        $adminId = !empty($param['admin_id']) ? $param['admin_id'] : '';
+        
+        // Query
+        $query = DB::select(
+                self::$_table_name.'.*',
+                array('fb_accounts.fb_id', 'fb_account_fb_id'),
+                array('fb_accounts.name', 'fb_account_name')
+            )
+            ->from(self::$_table_name)
+            ->join('fb_accounts', 'LEFT')
+            ->on('fb_accounts.id', '=', self::$_table_name.'.fb_account_id')
+        ;
+                        
+        // Filter
+        if (isset($param['disable']) && $param['disable'] != '') {
+            $disable = !empty($param['disable']) ? 1 : 0;
+            $query->where(self::$_table_name.'.disable', $disable);
+        }
+        if (!empty($param['fb_auto_comment_id'])) {
+            $query->where(self::$_table_name.'.fb_auto_comment_id', $param['fb_auto_comment_id']);
+        }
+        
+        // Pagination
+        if (!empty($param['page']) && $param['limit']) {
+            $offset = ($param['page'] - 1) * $param['limit'];
+            $query->limit($param['limit'])->offset($offset);
+        }
+        
+        // Sort
+        if (!empty($param['sort'])) {
+            if (!self::checkSort($param['sort'])) {
+                self::errorParamInvalid('sort');
+                return false;
+            }
+
+            $sortExplode = explode('-', $param['sort']);
+            if ($sortExplode[0] == 'created') {
+                $sortExplode[0] = self::$_table_name . '.created';
+            }
+            $query->order_by($sortExplode[0], $sortExplode[1]);
+        } else {
+            $query->order_by(self::$_table_name . '.created', 'DESC');
+        }
+        
+        // Get data
+        $data = $query->execute()->as_array();
+        
         return $data;
     }
 }
